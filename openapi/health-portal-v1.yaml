@@ -1,0 +1,513 @@
+openapi: 3.0.3
+info:
+  version: 1.0.0
+  title: b.illia.health-portal - OpenAPI 3.0
+  description: >- 
+    API for health portal
+    
+    
+    Mostly RESTful with addition of long polling endpoints
+
+paths:
+  /patients:
+    get:
+      operationId: listPatients
+      summary: Get list of patients
+      tags: [ patients ]
+      parameters: 
+        - $ref: '#/components/parameters/pagingOffset'
+        - $ref: '#/components/parameters/pagingLimit'
+        - $ref: '#/components/parameters/searchFilter'
+      responses:
+        '200': 
+          description: Success
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/PatientsList'
+        '400':
+          $ref: '#/components/responses/BadRequest'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+      security: 
+        - health_portal_auth: []
+    post:
+      operationId: addPatient
+      summary: Add new patient
+      tags: [ patients ]
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/Patient'
+      responses:
+        '200':
+          description: A patient successfully added
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/SavedPatient'
+        '400':
+          $ref: '#/components/responses/BadRequest'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+      security: 
+        - health_portal_auth: []
+  /patients/{patientId}:
+    get:
+      operationId: getPatient
+      summary: Get specific patient
+      tags: [ patients ]
+      parameters:
+        - $ref: '#/components/parameters/patientId'
+      responses:
+        '200':
+          description: Success
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/SavedPatient'
+        '400':
+          $ref: '#/components/responses/BadRequest'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '404':
+          $ref: '#/components/responses/NotFound'
+      security: 
+        - health_portal_auth: []
+    put:
+      operationId: updatePatient
+      summary: Save changes to a Patient
+      tags: [ patients ]
+      parameters:
+        - $ref: '#/components/parameters/patientId'
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/Patient'
+      responses:
+        '200':
+          description: Success
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/SavedPatient'
+        '400':
+          $ref: '#/components/responses/BadRequest'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '404':
+          $ref: '#/components/responses/NotFound'
+      security: 
+        - health_portal_auth: []
+    delete:
+      operationId: deletePatient
+      summary: Delete a patient
+      tags: [ patients ]
+      parameters:
+        - $ref: '#/components/parameters/patientId'
+      responses:
+        '200':
+          $ref: '#/components/responses/Success'
+        '400':
+          $ref: '#/components/responses/BadRequest'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '404':
+          $ref: '#/components/responses/NotFound'
+      security: 
+        - health_portal_auth: []
+  /patients/{patientId}/records:
+    get:
+      operationId: listRecords
+      summary: list all of patient records (comments)
+      tags: [ patientRecords ]
+      parameters:
+        - $ref: '#/components/parameters/patientId'
+        - $ref: '#/components/parameters/pagingOffset'
+        - $ref: '#/components/parameters/pagingLimit'
+      responses:
+        '200': 
+          description: Success
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/PatientRecordsList'
+      security: 
+        - health_portal_auth: []
+    post:
+      operationId: addRecord
+      summary: Add a record (comment) to a patient
+      tags: [ patientRecords ]
+      parameters: 
+        - $ref: '#/components/parameters/patientId'
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/PatientRecord'
+      responses:
+        '200':
+          description: A patient record (comment) successfully added
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/SavedPatientRecord'
+        '400':
+          $ref: '#/components/responses/BadRequest'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '404':
+          $ref: '#/components/responses/NotFound'
+      security: 
+        - health_portal_auth: []
+  /patients/{patientId}/records/{recordId}:
+    put:
+      operationId: updateRecord
+      summary: Update patient's record (comment)
+      tags: [ patientRecords ]
+      parameters: 
+        - $ref: '#/components/parameters/patientId'
+        - $ref: '#/components/parameters/patientRecordId'
+      responses:
+        '200':
+          description: An updated patient record (comment) saved
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/SavedPatientRecord'
+        '400':
+          $ref: '#/components/responses/BadRequest'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '404':
+          $ref: '#/components/responses/NotFound'
+      security: 
+        - health_portal_auth: []
+    delete:
+      operationId: deleteRecord
+      summary: Delete a patient's record (comment)
+      tags: [ patientRecords ]
+      parameters:
+        - $ref: '#/components/parameters/patientId'
+        - $ref: '#/components/parameters/patientRecordId'
+      responses:
+        '200':
+          $ref: '#/components/responses/Success'
+        '400':
+          $ref: '#/components/responses/BadRequest'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '404':
+          $ref: '#/components/responses/NotFound'
+      security: 
+        - health_portal_auth: []
+  /users:
+    post:
+      operationId: addUser
+      summary: Add new user
+      tags: [ users ]
+      description: Only super users can perform this operation.
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/User'
+      responses:
+        '200':
+          description: A user successfully added, check email for generated password
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/SavedUser'
+        '400':
+          $ref: '#/components/responses/BadRequest'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+      security: 
+        - health_portal_auth: []
+  /users/{userId}:
+    get:
+      operationId: getUser
+      summary: Get user by ID
+      tags: [ users ]
+      parameters:
+        - $ref: '#/components/parameters/userId'
+      responses:
+        '200':
+          description: Success
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/SavedUser'
+        '400':
+          $ref: '#/components/responses/BadRequest'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '404':
+          $ref: '#/components/responses/NotFound'
+      security: 
+        - health_portal_auth: []
+  /auth/token:
+    post:
+      operationId: authenticate
+      summary: Logs user into the system
+      tags: [ auth ]
+      parameters:
+        - name: username
+          in: query
+          description: The user name for login
+          required: true
+          schema:
+            type: string
+        - name: password
+          in: query
+          description: hash of the password
+          required: true
+          schema:
+            type: string
+      responses:
+        '200':
+          description: successful operation
+          content:
+            application/json:
+              schema:
+                type: string
+        '400':
+          $ref: '#/components/responses/BadRequest'
+        '404':
+          description: No user found with provided username/password
+  /auth/logout:
+    post:
+      operationId: revoke
+      summary: Logs out current logged in user session
+      tags: [ auth ]
+      responses:
+        '200':
+          $ref: '#/components/responses/Success'
+        '400':
+          $ref: '#/components/responses/BadRequest'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+      security: 
+        - health_portal_auth: []
+
+components:
+  schemas:
+    PagedList:
+      type: object
+      properties:
+        totalCount:
+          type: integer
+        count:
+          type: integer
+        offset:
+          type: integer
+        hasMore:
+          type: boolean
+      required: 
+        - totalCount
+        - count
+        - offset
+        - hasMore
+    Address:
+      type: object
+      properties:
+        streetAddress:
+          type: string
+        city:
+          type: string
+        state:
+          type: string
+        country:
+          type: string
+        zip:
+          type: string
+      required:
+        - streetAddress
+        - city
+        - country
+      xml:
+        name: address
+    Patient:
+      type: object
+      properties:
+        firstName:
+          type: string
+        lastName:
+          type: string
+        sex:
+          type: string
+          enum:
+            - male
+            - female
+        birthDate:
+          type: string
+          format: date
+        address:
+          $ref: '#/components/schemas/Address'
+      required:
+        - firstName
+        - lastName
+        - sex
+        - birthDate
+        - address
+      xml:
+        name: patient
+    SavedPatient:
+      allOf:
+        - properties:
+            id:
+              type: integer
+              format: int64
+          required:
+            - id
+        - $ref: '#/components/schemas/Patient'
+    PatientsList:
+      allOf:
+        - $ref: '#/components/schemas/PagedList'
+        - type: object
+          properties:
+            patients: 
+              type: array
+              items:
+                $ref: '#/components/schemas/SavedPatient'
+          xml:
+            name: patients
+    PatientRecord:
+      type: object
+      properties:
+        patientId:
+          type: integer
+          format: int64
+        summary:
+          type: string
+        content:
+          type: string
+      required: 
+        - patientId
+        - content
+      xml:
+        name: record
+    SavedPatientRecord:
+      allOf:
+        - type: object
+          properties:
+            id:
+              type: integer
+              format: int64
+            author:
+              type: string
+            created: 
+              type: string
+              format: date-time
+            modified: 
+              type: string
+              format: date-time
+            editEnabled:
+              type: boolean
+          required:
+            - id
+            - author
+            - created
+            - modified
+            - editEnabled
+        - $ref: '#/components/schemas/PatientRecord'
+    PatientRecordsList:
+      allOf:
+        - $ref: '#/components/schemas/PagedList'
+        - type: object
+          properties:
+            records: 
+              type: array
+              items:
+                $ref: '#/components/schemas/SavedPatientRecord'
+          xml:
+            name: records
+    User:
+      type: object
+      properties:
+        username:
+          type: string
+        firstName:
+          type: string
+        lastName:
+          type: string
+        email:
+          type: string
+        superuser:
+          type: boolean
+          default: false
+      required:
+        - username
+        - firstName
+        - lastName
+        - email
+      xml:
+        name: user
+    SavedUser:
+      allOf:
+        - properties:
+            id:
+              type: integer
+              format: int64
+          required:
+            - id
+        - $ref: '#/components/schemas/User'
+        
+  parameters:
+    pagingLimit:
+      name: limit
+      in: query
+      schema:
+        type: integer
+    pagingOffset:
+      name: offset
+      in: query
+      schema:
+        type: integer
+    searchFilter:
+      name: q
+      in: query
+      schema:
+        type: string
+    patientId:
+      name: patientId
+      in: path
+      required: true
+      schema:
+        type: integer
+        format: int64
+    patientRecordId:
+      name: recordId
+      in: path
+      required: true
+      schema:
+        type: integer
+        format: int64
+    userId:
+      name: userId
+      in: path
+      required: true
+      schema:
+        type: integer
+        format: int64
+
+  responses:
+    Success:
+      description: Operation was successful
+    BadRequest:
+      description: Bad Request
+    Unauthorized:
+      description: Unauthorized
+    NotFound:
+      description: Requested resource is not found or unaccessible
+  securitySchemes:
+    health_portal_auth:
+      type: http
+      scheme: bearer
+
