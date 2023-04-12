@@ -1,6 +1,6 @@
 openapi: 3.0.3
 info:
-  version: 1.0.0
+  version: 1.1.0
   title: b.illia.health-portal - OpenAPI 3.0
   description: >- 
     API for health portal
@@ -108,6 +108,23 @@ paths:
       tags: [ patients ]
       parameters:
         - $ref: '#/components/parameters/patientId'
+        - name: permanent
+          in: query
+          description: >-
+            Indicate request to remove all data for the patient. 
+            Available only for super users.
+          required: false
+          schema:
+            type: boolean
+            default: false
+        - name: password
+          in: query
+          description: >-
+            Super user password hash. 
+            Acts as confirmation for permanent delete.
+          required: false
+          schema:
+            type: string
       responses:
         '200':
           $ref: '#/components/responses/Success'
@@ -345,6 +362,7 @@ components:
           enum:
             - male
             - female
+            - other
         birthDate:
           type: string
           format: date
@@ -364,6 +382,9 @@ components:
             id:
               type: integer
               format: int64
+            deleted:
+              type: boolean
+              default: false
           required:
             - id
         - $ref: '#/components/schemas/Patient'
@@ -410,6 +431,11 @@ components:
               format: date-time
             editEnabled:
               type: boolean
+            type:
+              type: string
+              enum:
+                - update
+                - comment
           required:
             - id
             - author
@@ -502,6 +528,14 @@ components:
       description: Operation was successful
     BadRequest:
       description: Bad Request
+      content:
+        application/json:
+          schema:
+            type: object
+            properties:
+              message:
+                type: string
+                required: false
     Unauthorized:
       description: Unauthorized
     NotFound:
