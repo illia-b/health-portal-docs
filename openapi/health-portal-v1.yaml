@@ -1,12 +1,23 @@
 openapi: 3.0.3
 info:
-  version: 1.1.0
+  version: 2.0.0
   title: b.illia.health-portal - OpenAPI 3.0
-  description: >- 
-    API for health portal
-    
-    
+  description: |
+    # API for health portal
+
     Mostly RESTful with addition of long polling endpoints
+
+    ## v2.0.0
+    * Switch to UUID as identifiers
+
+    ## v1.1.0
+    * Added status to patients to provide ability to soft delete
+    * Added types to patient records to add profile updates as records
+    * Added optional parameters to DELETE /patients/{patientId} to allow for permanent patient removal
+    * Added message string for explanation to 400 Bad Request response. 
+
+    ## v1.0.0
+    Initial version
 
 paths:
   /patients:
@@ -380,8 +391,8 @@ components:
       allOf:
         - properties:
             id:
-              type: integer
-              format: int64
+              type: string
+              format: uuid
             deleted:
               type: boolean
               default: false
@@ -403,8 +414,8 @@ components:
       type: object
       properties:
         patientId:
-          type: integer
-          format: int64
+          type: string
+          format: uuid
         summary:
           type: string
         content:
@@ -419,8 +430,8 @@ components:
         - type: object
           properties:
             id:
-              type: integer
-              format: int64
+              type: string
+              format: uuid
             author:
               type: string
             created: 
@@ -479,8 +490,8 @@ components:
       allOf:
         - properties:
             id:
-              type: integer
-              format: int64
+              type: string
+              format: uuid
           required:
             - id
         - $ref: '#/components/schemas/User'
@@ -506,22 +517,22 @@ components:
       in: path
       required: true
       schema:
-        type: integer
-        format: int64
+        type: string
+        format: uuid
     patientRecordId:
       name: recordId
       in: path
       required: true
       schema:
-        type: integer
-        format: int64
+        type: string
+        format: uuid
     userId:
       name: userId
       in: path
       required: true
       schema:
-        type: integer
-        format: int64
+        type: string
+        format: uuid
 
   responses:
     Success:
