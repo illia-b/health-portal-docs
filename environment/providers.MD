@@ -11,7 +11,7 @@ Details: https://docs.railway.app/reference/plans#trial-plan
 - 5$/500 hours of runtime a month. Suspended when credits are used up.  
 - No way to pause a service/database.  
 ### Commnets:
-  - No api or function is there to pause runtime of a plugin (database)
+  - May be used as temporary environment
 
 
 ## Render.com
